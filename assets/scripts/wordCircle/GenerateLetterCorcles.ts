@@ -1,42 +1,90 @@
-import { _decorator, CCFloat, CCInteger, Component, instantiate, Node, Prefab, UITransform, Vec3, resources, JsonAsset, path  } from 'cc';
+import { _decorator, CCFloat, CCInteger, Component, instantiate, Node, Prefab, UITransform, Vec3, resources, JsonAsset, path } from 'cc';
+import { LetterCircleController } from '../letterCircle/LetterCircleController';
+import { gameEventTarget } from '../GameEventTarget';
+import { GameEvent } from '../enums/GameEvent';
 const { ccclass, property } = _decorator;
 
 @ccclass('GenerateLetterCorcles')
 export class GenerateLetterCorcles extends Component {
-    @property(CCInteger)
-    lettersCount: number = 4;
-    
     @property(CCFloat)
     radiusScaleCorrection: number = 0.95;
 
     @property(Prefab)
     letterPrefab: Prefab;
 
-    protected onEnable(): void {
+    protected async onEnable(): Promise<void> {
         const radius = this._calculateRadius();
-        const positions = this._calculatePointsOnCircle(radius);
+        const posArr = this._calculatePointsOnCircle(radius);
 
-        this._spawnLetterPrefab(positions);
-        this._loadJson();
+        this._subscribeEvents(true);
+        
+        const lvlData = await this._loadJson();
+        const words = this._processLvlData(lvlData);
+        const letters = this._getMinLetterSet(words);
+
+        this._spawnLetterPrefab(posArr, letters);
     }
 
-    private _loadJson() {
-        resources.load('levels/1', JsonAsset, (err, jsonAsset) => {
-            if (err) {
-                console.error('Error loading JSON file:', err);
-                return;
-            }
-            const data = jsonAsset.json;
-            console.log(data);
+	onDisable() {
+		this._subscribeEvents(false);
+	}
+
+    private _processLvlData(lvlData: object) {
+        const words = lvlData['words'];
+        
+        words.forEach((word: string, i: number) => words[i] = word.toUpperCase());
+        console.log(words);
+        
+        return words;
+    }
+
+    private _getMinLetterSet(wordsArray: Array<string>): Array<string> {
+        const letterCounts = {};
+
+        wordsArray.forEach(word => {
+            const wordLetterCounts = {};
+
+            word.split('').forEach(letter => {
+                wordLetterCounts[letter] = (wordLetterCounts[letter] || 0) + 1;
+            });
+
+            Object.keys(wordLetterCounts).forEach(letter => {
+                letterCounts[letter] = Math.max(letterCounts[letter] || 0, wordLetterCounts[letter]);
+            });
         });
+
+        const result = [];
+        Object.keys(letterCounts).forEach(letter => {
+            for (let i = 0; i < letterCounts[letter]; i++) {
+                result.push(letter);
+            }
+        });
+
+        return result;
     }
 
-    private _spawnLetterPrefab(posArr: Array<Vec3>): void {
-        posArr.forEach(position => {
+    private _loadJson(): Promise<object> {
+        return new Promise(resolve => {
+            resources.load('levels/1', JsonAsset, (err, jsonAsset) => {
+                if (err) {
+                    console.error('Error loading JSON file:', err);
+                    return;
+                }
+                const data = jsonAsset.json;
+                resolve(data);
+            });
+        })
+    }
+
+    private _spawnLetterPrefab(posArr: Array<Vec3>, letters: Array<string>, ): void {
+        posArr.forEach((position, i) => {
             const instance = instantiate(this.letterPrefab);
+            const letterController = instance.getComponent(LetterCircleController);
 
             this.node.addChild(instance);
             instance.position.add(position);
+            
+            letterController.letter = letters[i];
         })
     }
 
@@ -62,7 +110,35 @@ export class GenerateLetterCorcles extends Component {
     }
 
     protected update(dt: number): void {
-        
+
     }
+    
+	private _subscribeEvents(isOn: boolean) {
+		const func = isOn ? 'on' : 'off';
+
+		gameEventTarget[func](GameEvent.JOYSTICK_MOVE_START, this.onJoystickMoveStart, this);
+		gameEventTarget[func](GameEvent.JOYSTICK_MOVE_END, this.onJoystickMoveEnd, this);
+		gameEventTarget[func](GameEvent.JOYSTICK_MOVE, this.onJoystickMove, this);
+	}
+
+    onJoystickMoveStart() {
+
+    }
+
+    onJoystickMoveEnd() {
+
+    }
+
+    onJoystickMove() {
+
+    }
+
+
+
+
+
+
+
+
 }
 
