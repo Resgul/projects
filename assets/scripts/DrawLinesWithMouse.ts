@@ -1,4 +1,6 @@
-import { _decorator, Component, Graphics, input, Input, EventMouse, Vec2, v2, Node, UITransform, Vec3 } from 'cc';
+import { _decorator, Component, Graphics, input, Input, EventMouse, Vec2, v2, v3, Node, UITransform, Vec3 } from 'cc';
+import { gameEventTarget } from './GameEventTarget';
+import { GameEvent } from './enums/GameEvent';
 const { ccclass, property } = _decorator;
 
 @ccclass('DrawLinesWithMouse')
@@ -6,46 +8,62 @@ export class DrawLinesWithMouse extends Component {
     @property(Graphics)
     graphics: Graphics = null;
 
-    private isDrawing = false;
+    public isDrawing = false;
     private points: Vec2[] = [];
-    private startPoint: Vec2 = null;
+    private startPoint: Vec2;
+    private startCircle: Node;
 
-    start() {
-        input.on(Input.EventType.MOUSE_DOWN, this.onMouseDown, this);
-        input.on(Input.EventType.MOUSE_MOVE, this.onMouseMove, this);
-        input.on(Input.EventType.MOUSE_UP, this.onMouseUp, this);
+    protected onEnable(): void {
+        this._subscribeEvents(true);
     }
 
-    onMouseDown(event: EventMouse) {
+    protected onDisable(): void {
+        this._subscribeEvents(false);
+
+    }
+
+    private _subscribeEvents(isOn: boolean) {
+        const func = isOn ? 'on' : 'off';
+
+        gameEventTarget[func](GameEvent.MOUSE_DOWN_LETTER, this.onMouseDown, this);
+        gameEventTarget[func](GameEvent.MOUSE_UP_LETTER, this.onMouseUp, this);
+        gameEventTarget[func](GameEvent.MOUSE_MOVE_LETTER, this.onMouseMove, this);
+        gameEventTarget[func](GameEvent.MAIN_SCREEN_BUTTON_MOVE, this.onMouseMove, this);
+    }
+
+    onMouseDown(position: Vec2, circle: Node) {
         this.isDrawing = true;
+        this.startCircle = circle;
+        this.startPoint = position;
         this.points = [];
-        this.addPoint(event);
+        this.addPoint(position);
     }
 
-    onMouseMove(event: EventMouse) {
+    onMouseMove(position: Vec2, circle: Node) {
         if (this.isDrawing) {
-            this.addPoint(event);
+            circle && console.log(circle.name, circle.uuid);
+            
+            this.addPoint(position);
         }
     }
 
-    onMouseUp(event: EventMouse) {
+    onMouseUp(position: Vec2) {
         this.isDrawing = false;
         this.updateGraphics();
         this.startPoint = null;
     }
 
-    addPoint(event: EventMouse) {
-        const uiTransform = this.node.getComponent(UITransform);
-        const { x, y } = event.getUILocation();
-
-        if (!this.startPoint) {
-            this.startPoint = v2(x, y);
-        }
+    public addPoint(position: Vec2) {
+        if (!position) return;
 
         this.points.push(this.startPoint);
-
-        this.points.push(v2(x, y));
+        this.points.push(position);
+        
         this.updateGraphics();
+    }
+
+    drawDot(array: Array<Vec2>) {
+        if (array[0].x === array[1].x) array[1].x += 0.001;
     }
 
     updateGraphics() {
@@ -54,6 +72,10 @@ export class DrawLinesWithMouse extends Component {
 
         if (this.points.length > 0) {
             g.moveTo(this.points[0].x, this.points[0].y);
+
+            // для рисования точки, даже если клик на месте
+            this.drawDot(this.points);
+
             for (let i = 1; i < this.points.length; i++) {
                 g.lineTo(this.points[i].x, this.points[i].y);
             }

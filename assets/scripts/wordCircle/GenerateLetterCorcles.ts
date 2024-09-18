@@ -2,6 +2,7 @@ import { _decorator, CCFloat, CCInteger, Component, instantiate, Node, Prefab, U
 import { LetterCircleController } from '../letterCircle/LetterCircleController';
 import { gameEventTarget } from '../GameEventTarget';
 import { GameEvent } from '../enums/GameEvent';
+import { ScreenButton } from '../input/ScreenButton';
 const { ccclass, property } = _decorator;
 
 @ccclass('GenerateLetterCorcles')
@@ -80,6 +81,9 @@ export class GenerateLetterCorcles extends Component {
         posArr.forEach((position, i) => {
             const instance = instantiate(this.letterPrefab);
             const letterController = instance.getComponent(LetterCircleController);
+            const letterScreenButton = instance.getComponent(ScreenButton);
+
+            letterScreenButton.buttonName = 'LetterCircle' + i;
 
             this.node.addChild(instance);
             instance.position.add(position);
@@ -114,11 +118,11 @@ export class GenerateLetterCorcles extends Component {
     }
     
 	private _subscribeEvents(isOn: boolean) {
-		const func = isOn ? 'on' : 'off';
+		// const func = isOn ? 'on' : 'off';
 
-		gameEventTarget[func](GameEvent.JOYSTICK_MOVE_START, this.onJoystickMoveStart, this);
-		gameEventTarget[func](GameEvent.JOYSTICK_MOVE_END, this.onJoystickMoveEnd, this);
-		gameEventTarget[func](GameEvent.JOYSTICK_MOVE, this.onJoystickMove, this);
+		// gameEventTarget[func](GameEvent.JOYSTICK_MOVE_START, this.onJoystickMoveStart, this);
+		// gameEventTarget[func](GameEvent.JOYSTICK_MOVE_END, this.onJoystickMoveEnd, this);
+		// gameEventTarget[func](GameEvent.JOYSTICK_MOVE, this.onJoystickMove, this);
 	}
 
     onJoystickMoveStart() {

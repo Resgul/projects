@@ -81,6 +81,7 @@ export class ScreenButton extends Component {
 		this.node[func](Input.EventType.TOUCH_END, this.onTouchEnd, this);
 		this.node[func](Input.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
 		this.node[func](Input.EventType.TOUCH_MOVE, this.onTouchMove, this);
+		this.node[func](Input.EventType.MOUSE_MOVE, this.onTouchMove, this);
 	}
 
 	getCustomFields() {
@@ -90,8 +91,8 @@ export class ScreenButton extends Component {
 	onTouchStart(event: EventTouch) {
 		this.statusMap.set(InteractionType.Down, true);
 
-		this.touchStartPos = event.getLocation();
-		this.touchCurrPos = event.getLocation();
+		this.touchStartPos = event.getUILocation();
+		this.touchCurrPos = event.getUILocation();
 	}
 
 	onTouchEnd(event: EventTouch) {
@@ -111,7 +112,7 @@ export class ScreenButton extends Component {
 	onTouchMove(event: EventTouch) {
 		this.statusMap.set(InteractionType.Move, true);
 
-		this.touchCurrPos = event.getLocation();
+		this.touchCurrPos = event.getUILocation();
 	}
 }
 

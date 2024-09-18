@@ -424,7 +424,7 @@
     "node": {
       "__id__": 1
     },
-    "_enabled": false,
+    "_enabled": true,
     "__prefab": {
       "__id__": 21
     },
@@ -455,22 +455,22 @@
   {
     "__type__": "InteractionCommandPair",
     "interactionType": 2,
-    "commandName": "joystickMoveEndCommand"
+    "commandName": "letterUpCommand"
   },
   {
     "__type__": "InteractionCommandPair",
     "interactionType": 1,
-    "commandName": "joystickMoveStartCommand"
+    "commandName": "letterDownCommand"
   },
   {
     "__type__": "InteractionCommandPair",
     "interactionType": 3,
-    "commandName": "joystickMoveCommand"
+    "commandName": "letterMoveCommand"
   },
   {
     "__type__": "InteractionCommandPair",
     "interactionType": 4,
-    "commandName": "joystickMoveEndCommand"
+    "commandName": "letterUpCommand"
   },
   {
     "__type__": "cc.PrefabInfo",
