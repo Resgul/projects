@@ -1,5 +1,6 @@
-import { _decorator, Component, Graphics, input, Input, EventMouse, Vec2, v2, v3, Node, UITransform, Vec3 } from 'cc';
+import { _decorator, Component, Graphics, Vec2, v2, Node } from 'cc';
 import { gameEventTarget } from './GameEventTarget';
+import { catmullRomSpline } from './utils/SplineFunction';
 import { GameEvent } from './enums/GameEvent';
 const { ccclass, property } = _decorator;
 
@@ -12,6 +13,8 @@ export class DrawLinesWithMouse extends Component {
     private points: Vec2[] = [];
     private startPoint: Vec2;
     private startCircle: Node;
+    private mousePosition: Vec2;
+    private connectedCircles: Set<Node> = new Set();
 
     protected onEnable(): void {
         this._subscribeEvents(true);
@@ -32,17 +35,20 @@ export class DrawLinesWithMouse extends Component {
     }
 
     onMouseDown(position: Vec2, circle: Node) {
+        if (!circle) return;
+
+
         this.isDrawing = true;
         this.startCircle = circle;
-        this.startPoint = position;
         this.points = [];
+
         this.addPoint(position);
     }
 
     onMouseMove(position: Vec2, circle: Node) {
         if (this.isDrawing) {
-            circle && console.log(circle.name, circle.uuid);
-            
+            if (circle) this.connectedCircles.add(circle);
+
             this.addPoint(position);
         }
     }
@@ -51,20 +57,36 @@ export class DrawLinesWithMouse extends Component {
         this.isDrawing = false;
         this.updateGraphics();
         this.startPoint = null;
+        this.connectedCircles.clear();
     }
 
     public addPoint(position: Vec2) {
         if (!position) return;
+        const pointsPositions = [];
 
-        this.points.push(this.startPoint);
-        this.points.push(position);
-        
+        if (this.connectedCircles.size < 2) {
+            this.connectedCircles.forEach(circle => {
+                const { x, y } = circle.worldPosition;
+
+                this.points.push(v2(x, y));
+            });
+
+            this.points.push(position);
+
+        } else {
+            this.connectedCircles.forEach(circle => {
+                const { x, y } = circle.worldPosition;
+
+                pointsPositions.push(v2(x, y));
+            });
+            pointsPositions.push(position);
+            const splinePoints = catmullRomSpline(pointsPositions, 10);
+            this.points = splinePoints;
+        }
+
         this.updateGraphics();
     }
 
-    drawDot(array: Array<Vec2>) {
-        if (array[0].x === array[1].x) array[1].x += 0.001;
-    }
 
     updateGraphics() {
         const g = this.graphics;
@@ -72,9 +94,6 @@ export class DrawLinesWithMouse extends Component {
 
         if (this.points.length > 0) {
             g.moveTo(this.points[0].x, this.points[0].y);
-
-            // для рисования точки, даже если клик на месте
-            this.drawDot(this.points);
 
             for (let i = 1; i < this.points.length; i++) {
                 g.lineTo(this.points[i].x, this.points[i].y);
