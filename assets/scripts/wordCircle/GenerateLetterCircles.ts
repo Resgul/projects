@@ -5,8 +5,8 @@ import { GameEvent } from '../enums/GameEvent';
 import { ScreenButton } from '../input/ScreenButton';
 const { ccclass, property } = _decorator;
 
-@ccclass('GenerateLetterCorcles')
-export class GenerateLetterCorcles extends Component {
+@ccclass('GenerateLetterCircles')
+export class GenerateLetterCircles extends Component {
     @property(CCFloat)
     radiusScaleCorrection: number = 0.95;
 
@@ -14,29 +14,24 @@ export class GenerateLetterCorcles extends Component {
     letterPrefab: Prefab;
 
     protected async onEnable(): Promise<void> {
-        const radius = this._calculateRadius();
-        const posArr = this._calculatePointsOnCircle(radius);
-
         this._subscribeEvents(true);
-        
-        const lvlData = await this._loadJson();
-        const words = this._processLvlData(lvlData);
-        const letters = this._getMinLetterSet(words);
-
-        this._spawnLetterPrefab(posArr, letters);
     }
 
-	onDisable() {
+	protected onDisable(): void {
 		this._subscribeEvents(false);
 	}
+        
+	private _subscribeEvents(isOn: boolean): void {
+		const func = isOn ? 'on' : 'off';
 
-    private _processLvlData(lvlData: object) {
-        const words = lvlData['words'];
-        
-        words.forEach((word: string, i: number) => words[i] = word.toUpperCase());
-        console.log(words);
-        
-        return words;
+		gameEventTarget[func](GameEvent.LEVEL_RESOURCES_PREPARED, this._onLevelResourcesPrepared, this);
+	}
+
+    private _onLevelResourcesPrepared(words: Array<string>): void {
+        const letters = this._getMinLetterSet(words);
+        const radius = this._calculateRadius();
+        const posArr = this._calculatePointsOnCircle(radius, letters);
+        this._spawnLetterPrefab(posArr, letters);
     }
 
     private _getMinLetterSet(wordsArray: Array<string>): Array<string> {
@@ -64,19 +59,6 @@ export class GenerateLetterCorcles extends Component {
         return result;
     }
 
-    private _loadJson(): Promise<object> {
-        return new Promise(resolve => {
-            resources.load('levels/1', JsonAsset, (err, jsonAsset) => {
-                if (err) {
-                    console.error('Error loading JSON file:', err);
-                    return;
-                }
-                const data = jsonAsset.json;
-                resolve(data);
-            });
-        })
-    }
-
     private _spawnLetterPrefab(posArr: Array<Vec3>, letters: Array<string>, ): void {
         posArr.forEach((position, i) => {
             const instance = instantiate(this.letterPrefab);
@@ -100,8 +82,8 @@ export class GenerateLetterCorcles extends Component {
         return radius;
     }
 
-    private _calculatePointsOnCircle(radius: number): Array<Vec3> {
-        const { lettersCount } = this;
+    private _calculatePointsOnCircle(radius: number, letters: Array<string>): Array<Vec3> {
+        const lettersCount = letters.length;
         const points = [];
 
         for (let i = 0; i < lettersCount; i++) {
@@ -112,37 +94,5 @@ export class GenerateLetterCorcles extends Component {
         }
         return points;
     }
-
-    protected update(dt: number): void {
-
-    }
-    
-	private _subscribeEvents(isOn: boolean) {
-		// const func = isOn ? 'on' : 'off';
-
-		// gameEventTarget[func](GameEvent.JOYSTICK_MOVE_START, this.onJoystickMoveStart, this);
-		// gameEventTarget[func](GameEvent.JOYSTICK_MOVE_END, this.onJoystickMoveEnd, this);
-		// gameEventTarget[func](GameEvent.JOYSTICK_MOVE, this.onJoystickMove, this);
-	}
-
-    onJoystickMoveStart() {
-
-    }
-
-    onJoystickMoveEnd() {
-
-    }
-
-    onJoystickMove() {
-
-    }
-
-
-
-
-
-
-
-
 }
 

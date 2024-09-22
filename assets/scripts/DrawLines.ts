@@ -36,8 +36,10 @@ export class DrawLinesWithMouse extends Component {
     }
 
     onPointerDown(position: Vec2, circle: Node) {
-        if (!circle) return;
-        else this.connectedCircles.add(circle);
+        if (circle) {
+            this.connectedCircles.add(circle);
+            gameEventTarget.emit(GameEvent.LETTER_ACTIVATE, circle);
+        } else return;
 
         this.isDrawing = true;
         this.points = [];
@@ -53,10 +55,15 @@ export class DrawLinesWithMouse extends Component {
 
     onLetterUnderPointer(position: Vec2, circle: Node) {
         if (this.isDrawing) {
-            if (circle) this.connectedCircles.add(circle);
+            // дабавить круг в сет для отрисовки и запустить ивенты
+            if (circle && !this.connectedCircles.has(circle)) {
+                this.connectedCircles.add(circle)
+                gameEventTarget.emit(GameEvent.LETTER_ACTIVATE, circle);
+            };
+            this.deleteLastIfTouchPrev(circle);
 
             this.addPoint(position);
-            this.deleteLastIfTouchPrev(circle);
+
             // ...визуальная активация круга 
             // ...добавление буквы во временную таблицу
         }
@@ -68,8 +75,9 @@ export class DrawLinesWithMouse extends Component {
             const preLastCircle = this.connectedCirclesArray[this.connectedCirclesArray.length - 2];
 
             if (circle === preLastCircle) {
-                // удаление линии ведущей к кругу
+                // удаление последнего круга из сета, чтобы удалить ведущую к нему линию
                 this.connectedCircles.delete(lastCircle);
+                gameEventTarget.emit(GameEvent.LETTER_DEACTIVATE, lastCircle);
                 // ...визуальная деактивация круга 
                 // ...удаление буквы из временной таблицы
             }
@@ -81,6 +89,8 @@ export class DrawLinesWithMouse extends Component {
         this.updateGraphics();
         this.connectedCircles.clear();
         this.connectedCirclesArray = [];
+
+        gameEventTarget.emit(GameEvent.LETTER_DEACTIVATE_ALL);
     }
 
     private fillPositionsArr(array: Array<Vec2>, mousePos: Vec2): void {

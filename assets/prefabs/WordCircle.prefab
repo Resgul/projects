@@ -229,7 +229,6 @@
     "__prefab": {
       "__id__": 11
     },
-    "lettersCount": 3,
     "radiusScaleCorrection": 0.95,
     "letterPrefab": {
       "__uuid__": "34b43f8d-05f3-4c00-9a46-50ae30918cca",
@@ -239,7 +238,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "86fB0b0tJNHbF3erdbUnSb"
+    "fileId": "00DPgXV6hPsY8A8Kk4C77E"
   },
   {
     "__type__": "cc.PrefabInfo",
