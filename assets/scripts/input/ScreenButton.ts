@@ -81,7 +81,7 @@ export class ScreenButton extends Component {
 		this.node[func](Input.EventType.TOUCH_END, this.onTouchEnd, this);
 		this.node[func](Input.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
 		this.node[func](Input.EventType.TOUCH_MOVE, this.onTouchMove, this);
-		this.node[func](Input.EventType.MOUSE_MOVE, this.onTouchMove, this);
+		// this.node[func](Input.EventType.MOUSE_MOVE, this.onTouchMove, this);
 	}
 
 	getCustomFields() {

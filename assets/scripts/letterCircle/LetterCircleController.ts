@@ -28,20 +28,20 @@ export class LetterCircleController extends Component {
     private _subscribeEvents(isOn: boolean) {
         const func = isOn ? 'on' : 'off';
 
-        gameEventTarget[func](GameEvent.MOUSE_DOWN_LETTER, this.onMouseDown, this);
-        gameEventTarget[func](GameEvent.MOUSE_UP_LETTER, this.onMouseUp, this);
-        gameEventTarget[func](GameEvent.MOUSE_MOVE_LETTER, this.onMouseMove, this);
+        gameEventTarget[func](GameEvent.LETTER_POINTER_DOWN, this.onPointerDown, this);
+        gameEventTarget[func](GameEvent.LETTER_POINTER_UP, this.onPointerUp, this);
+        gameEventTarget[func](GameEvent.LETTER_POINTER_MOVE, this.onPointerMove, this);
     }
 
-    private onMouseDown() {
-
-    }
-
-    private onMouseUp() {
+    private onPointerDown() {
 
     }
 
-    private onMouseMove() {
+    private onPointerUp() {
+
+    }
+
+    private onPointerMove() {
 
     }
 

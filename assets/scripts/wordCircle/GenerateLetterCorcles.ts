@@ -83,8 +83,8 @@ export class GenerateLetterCorcles extends Component {
             const letterController = instance.getComponent(LetterCircleController);
             const letterScreenButton = instance.getComponent(ScreenButton);
 
-            letterScreenButton.buttonName = 'LetterCircle' + i;
-
+            letterScreenButton.buttonName = instance.name = 'LetterCircle' + i;
+            
             this.node.addChild(instance);
             instance.position.add(position);
             

@@ -14,19 +14,18 @@ export const CommandDict = {
 	},
 
 	letterUpCommand(button: ScreenButton) {
-		gameEventTarget.emit(GameEvent.MOUSE_UP_LETTER);
+		gameEventTarget.emit(GameEvent.LETTER_POINTER_UP);
 	},
 	
 	letterDownCommand(button: ScreenButton) {
-		gameEventTarget.emit(GameEvent.MOUSE_DOWN_LETTER, button.touchStartPos, button.node);
+		gameEventTarget.emit(GameEvent.LETTER_POINTER_DOWN, button.touchStartPos, button.node);
 	},
 
 	letterMoveCommand(button: ScreenButton) {
-		gameEventTarget.emit(GameEvent.MOUSE_MOVE_LETTER, button.touchCurrPos, button.node);
+		gameEventTarget.emit(GameEvent.LETTER_POINTER_MOVE, button.touchCurrPos, button.node);
 	},
 
 	redirectCommand(button: ScreenButton) {
-		gameEventTarget.emit(GameEvent.JOYSTICK_MOVE_END);
 		gameEventTarget.emit(GameEvent.REDIRECT_PROCESSING);
 	}
 }

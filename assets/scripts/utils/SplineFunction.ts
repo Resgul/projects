@@ -1,9 +1,4 @@
-import { Vec2, v2 } from 'cc';
-
-// Вспомогательная функция для интерполяции двух vec2
-function interpolate(p0: Vec2, p1: Vec2, t: number): Vec2 {
-    return v2((1 - t) * p0.x + t * p1.x, (1 - t) * p0.y + t * p1.y);
-}
+import { Vec2 } from 'cc';
 
 // Основная функция для генерации массива точек кривой
 export function catmullRomSpline(points: Array<Vec2>, numSegments: number = 20) {
