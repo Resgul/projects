@@ -1,12 +1,12 @@
-import { _decorator, CCFloat, CCInteger, Component, instantiate, Node, Prefab, UITransform, Vec3, resources, JsonAsset, path } from 'cc';
+import { _decorator, CCFloat, Component, instantiate, Prefab, UITransform, Vec3 } from 'cc';
 import { LetterCircleController } from '../letterCircle/LetterCircleController';
 import { gameEventTarget } from '../GameEventTarget';
 import { GameEvent } from '../enums/GameEvent';
 import { ScreenButton } from '../input/ScreenButton';
 const { ccclass, property } = _decorator;
 
-@ccclass('GenerateLetterCircles')
-export class GenerateLetterCircles extends Component {
+@ccclass('GenerateWordCircle')
+export class GenerateWordCircle extends Component {
     @property(CCFloat)
     radiusScaleCorrection: number = 0.95;
 
