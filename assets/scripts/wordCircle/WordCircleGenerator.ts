@@ -5,8 +5,8 @@ import { GameEvent } from '../enums/GameEvent';
 import { ScreenButton } from '../input/ScreenButton';
 const { ccclass, property } = _decorator;
 
-@ccclass('GenerateWordCircle')
-export class GenerateWordCircle extends Component {
+@ccclass('WordCircleGenerator')
+export class WordCircleGenerator extends Component {
     @property(CCFloat)
     radiusScaleCorrection: number = 0.95;
 
@@ -87,7 +87,7 @@ export class GenerateWordCircle extends Component {
         const points = [];
 
         for (let i = 0; i < lettersCount; i++) {
-            const angle = (2 * Math.PI * i) / lettersCount;
+            const angle = ((2 * Math.PI * i) / lettersCount) + Math.PI * 0.5;
             const x = radius * Math.cos(angle);
             const y = radius * Math.sin(angle);
             points.push(new Vec3(x, y, 0));

@@ -60,12 +60,9 @@ export class DrawLinesWithMouse extends Component {
                 this.connectedCircles.add(circle)
                 gameEventTarget.emit(GameEvent.LETTER_ACTIVATE, circle);
             };
+
             this.deleteLastIfTouchPrev(circle);
-
             this.addPoint(position);
-
-            // ...визуальная активация круга 
-            // ...добавление буквы во временную таблицу
         }
     }
 
@@ -78,8 +75,6 @@ export class DrawLinesWithMouse extends Component {
                 // удаление последнего круга из сета, чтобы удалить ведущую к нему линию
                 this.connectedCircles.delete(lastCircle);
                 gameEventTarget.emit(GameEvent.LETTER_DEACTIVATE, lastCircle);
-                // ...визуальная деактивация круга 
-                // ...удаление буквы из временной таблицы
             }
         }
     }
