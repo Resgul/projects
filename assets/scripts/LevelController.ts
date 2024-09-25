@@ -1,4 +1,4 @@
-import {  _decorator, CCInteger, Component, resources, JsonAsset, Node, Label } from 'cc';
+import {  _decorator, CCInteger, Component, resources, JsonAsset, Node, Label, math, Prefab } from 'cc';
 import { gameEventTarget } from './GameEventTarget';
 import { GameEvent } from './enums/GameEvent';
 const { ccclass, property } = _decorator;
@@ -12,18 +12,25 @@ export class LevelController extends Component {
     levelLabel: Node;
 
     @property(Node)
-    WordsField: Node;
+    packShot: Node;
 
     @property(Node)
-    WordMini: Node;
+    wordMini: Node;
 
-    @property(Node)
-    WordCircle: Node;
+    @property(Prefab)
+    wordsFieldPrefab: Prefab;
 
-    protected onEnable(): void {
+    @property(Prefab)
+    wordCirclePrefab: Prefab;
+
+    private _wordsField: Node;
+    private _wordCircle: Node;
+    private _lvlList: Array<Object>;
+
+    protected async onEnable(): Promise<void> {
         this._subscribeEvents(true);
-
-        this.loadLevelResouces(this.levelNumber);
+        this._lvlList = await this._loadLevels();
+        this._prepareLevelResouces(this.levelNumber);
     }
 
 	protected onDisable() {
@@ -37,15 +44,29 @@ export class LevelController extends Component {
         return words;
     }
 
-    private _loadJson(level: number): Promise<object> {
+    // private _loadJson(level: number): Promise<object> {
+    //     return new Promise(resolve => {
+    //         resources.load(`levels/${level}`, JsonAsset, (err, jsonAsset) => {
+    //             if (err) {
+    //                 console.error('Error loading JSON file:', err);
+    //                 return;
+    //             }
+    //             const data = jsonAsset.json;
+    //             resolve(data);
+    //         });
+    //     })
+    // }
+
+    private _loadLevels(): Promise<Array<Object>> {
         return new Promise(resolve => {
-            resources.load(`levels/${level}`, JsonAsset, (err, jsonAsset) => {
+            resources.loadDir('./levels', (err, assets) => {
                 if (err) {
-                    console.error('Error loading JSON file:', err);
+                    console.error("Error loading directory:", err);
                     return;
                 }
-                const data = jsonAsset.json;
-                resolve(data);
+            
+                const levels = assets.map(asset => asset['json']);
+                resolve(levels);
             });
         })
     }
@@ -54,18 +75,30 @@ export class LevelController extends Component {
 		const func = isOn ? 'on' : 'off';
 
 		gameEventTarget[func](GameEvent.LEVEL_NEXT, this.onNextLevel, this);
+		gameEventTarget[func](GameEvent.SHOW_ENDCARD, this._onShowEndcard, this);
 	}
 
     onNextLevel() {
         this.levelNumber++;
-        this.loadLevelResouces(this.levelNumber);
+
+        const currentLvlIndex = math.clamp(this.levelNumber % this._lvlList.length, 0, this._lvlList.length);
+        console.log(currentLvlIndex);
+
+        this._prepareLevelResouces(currentLvlIndex);
+        this.packShot.active = false;
     }
 
-    private async loadLevelResouces(level: number): Promise<void> {
-        const lvlData = await this._loadJson(level);
+    private _onShowEndcard() {
+        this.packShot.active = true;
+    }
+
+    private _prepareLevelResouces(levelNum: number): void {
+        const lvlData = this._lvlList[levelNum - 1];
+        console.log(lvlData);
+        
         const words = this._processLvlData(lvlData);
 
-        this.levelLabel.getComponent(Label).string = `Уровень ${level}`;
+        this.levelLabel.getComponent(Label).string = `Уровень ${this.levelNumber}`;
         
         
         gameEventTarget.emit(GameEvent.LEVEL_RESOURCES_PREPARED, words);
