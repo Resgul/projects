@@ -41,4 +41,3 @@ export class LetterTileController extends Component {
         this.label['string'] = str;
     }
 }
-

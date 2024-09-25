@@ -9,8 +9,10 @@ export class WordsFieldGenerator extends Component {
     @property(Prefab)
     wordPrefab: Prefab;
 
+    private _totalWordsCount: number;
     private _totalWordsHeight: number;
     private _wordsMap: Map<string, Node> = new Map();
+    private _wordsGuesed: Set<Node> = new Set();
 
     protected async onEnable(): Promise<void> {
         this._subscribeEvents(true);
@@ -25,6 +27,7 @@ export class WordsFieldGenerator extends Component {
 
         gameEventTarget[func](GameEvent.LEVEL_RESOURCES_PREPARED, this._onLevelResourcesPrepared, this);
         gameEventTarget[func](GameEvent.WORD_CHECK, this._onWordCheck, this);
+        gameEventTarget[func](GameEvent.CHECK_IF_FINISH, this._checkIfFinish, this);
     }
 
     private _onLevelResourcesPrepared(words: Array<string>): void {
@@ -39,6 +42,8 @@ export class WordsFieldGenerator extends Component {
         const scaleCorrection = fieldHeight / this._totalWordsHeight;
         // ресайз слов под границы, чтобы они не заслоняли другие элементы
         this.node.scale.set(scaleCorrection, scaleCorrection);
+        this._totalWordsCount = this._wordsMap.size;
+
     }
 
     private _spawnWordPrefab(word: string, i: number, words: Array<string>): void {
@@ -62,9 +67,26 @@ export class WordsFieldGenerator extends Component {
     }
 
     private _onWordCheck(word: string): void {
-        this._wordsMap.has(word) 
-        ? gameEventTarget.emit(GameEvent.WORD_CORRECT, this._wordsMap.get(word))
-        : gameEventTarget.emit(GameEvent.WORD_WRONG)
+        if (this._wordsMap.has(word)) {
+            const wordNode = this._wordsMap.get(word);
+
+            if (!this._wordsGuesed.has(wordNode)) {
+                this._wordsGuesed.add(wordNode);
+
+                gameEventTarget.emit(GameEvent.WORD_CORRECT, this._wordsMap.get(word));
+                this._totalWordsCount--;
+            } else {
+                gameEventTarget.emit(GameEvent.WORD_DUBLICATE, this._wordsMap.get(word))
+            }
+        } else {
+            gameEventTarget.emit(GameEvent.WORD_WRONG);
+        }
+    }
+
+    private _checkIfFinish(): void {
+        if (this._totalWordsCount === 0) {
+            gameEventTarget.emit(GameEvent.SHOW_ENDCARD)
+        };
     }
 }
 

@@ -1,4 +1,4 @@
-import { _decorator, Component, instantiate, Prefab, UITransform, Node, Animation, v3, tween } from 'cc';
+import { _decorator, Component, instantiate, Prefab, UITransform, Node, Animation, v3, Vec3, tween } from 'cc';
 import { gameEventTarget } from '../GameEventTarget';
 import { GameEvent } from '../enums/GameEvent';
 import { LetterCircleController } from '../letterCircle/LetterCircleController';
@@ -12,7 +12,6 @@ export class WordMiniGenerator extends Component {
     tilePrefab: Prefab;
 
     private _tilesSet: Set<Node> = new Set();
-    private _wordsGuesed: Set<Node> = new Set();
     private _tilesMap: Map<Node, Node> = new Map();
     private _tileSize: number;
 
@@ -32,6 +31,7 @@ export class WordMiniGenerator extends Component {
         gameEventTarget[func](GameEvent.LETTER_DEACTIVATE_ALL, this._onLetterDeactivateAll, this);
         gameEventTarget[func](GameEvent.WORD_CORRECT, this._onWordCorrect, this);
         gameEventTarget[func](GameEvent.WORD_WRONG, this._onWordWrong, this);
+        gameEventTarget[func](GameEvent.WORD_DUBLICATE, this._onWordDublicate, this);
     }
 
     private _onLetterActivate(circle: Node): void {
@@ -56,37 +56,26 @@ export class WordMiniGenerator extends Component {
     private _onWordCorrect(word: Node): void {
         const wordController = word.getComponent(WordTileController);
         const { wordSet } = wordController;
+        const promises = [];
 
-        if (this._wordsGuesed.has(word)) {
-            this._onWordDublicate();
-        } else {
-            [...this._tilesSet].forEach((tile, i) => {
-                const animation = tile.getComponent(Animation);
-                animation.play('correctLetter');
+        [...this._tilesSet].forEach((tile, i) => {
+            const animation = tile.getComponent(Animation);
+            animation.play('correctLetter');
 
-                const wordUITransform = [...wordSet][i].getComponent(UITransform);
-                const tileUITransform = tile.getComponent(UITransform);
-                const scaleCorrection = (wordUITransform.width * [...wordSet][i].worldScale.x) / tileUITransform.width;
-                const finalPos = [...wordSet][i].worldPosition;
-                const finalScale = v3(scaleCorrection, scaleCorrection, 1);
+            const wordUITransform = [...wordSet][i].getComponent(UITransform);
+            const tileUITransform = tile.getComponent(UITransform);
+            const scaleCorrection = (wordUITransform.width * [...wordSet][i].worldScale.x) / tileUITransform.width;
+            const finalPos = [...wordSet][i].worldPosition;
+            const finalScale = v3(scaleCorrection, scaleCorrection, 1);
 
-                tween(tile)
-                    .to(
-                        0.3, {
-                        scale: finalScale,
-                        worldPosition: finalPos,
-                    },
-                        { easing: "cubicOut" })
-                    .by(0.2, { scale: v3(0.25, 0.25, 0.25) },
-                        { easing: "cubicIn" })
-                    .by(0.2, { scale: v3(-0.25, -0.25, -0.25) },
-                        { easing: "cubicOut" })
-                    .start();
-            });
-        }
+            this._tweenMiniTileGetPosition(tile, finalScale, finalPos);
+            promises.push(this._tweenBigTileBounce([...wordSet][i]));
+        });
 
-        this._wordsGuesed.add(word);
         this._tilesSet.clear();
+
+        Promise.all(promises)
+            .then(() => gameEventTarget.emit(GameEvent.CHECK_IF_FINISH));
     }
 
     private _onWordWrong(): void {
@@ -100,10 +89,20 @@ export class WordMiniGenerator extends Component {
         this._tilesMap.clear();
     }
 
-    private _onWordDublicate(): void {
+    private _onWordDublicate(greenTilesOnField: Node): void {
+        const wordController = greenTilesOnField.getComponent(WordTileController);
+        const { wordSet } = wordController;
+
+
+        wordSet.forEach(tile => {
+            const animation = tile.getComponent(Animation);
+            animation.play('dublicateBigTile');
+
+        });
+
         [...this._tilesSet].forEach(tile => {
             const animation = tile.getComponent(Animation);
-            animation.play('wrongLetter');
+            animation.play('dublicateLetterMini');
             animation.on(Animation.EventType.FINISHED, () => tile.destroy(), this);
         })
 
@@ -147,5 +146,41 @@ export class WordMiniGenerator extends Component {
         })
     }
 
+    private _tweenMiniTileGetPosition(tile: Node, finalScale: Vec3, finalPos: Vec3): void {
+        tween(tile)
+            .to(
+                0.2, {
+                scale: finalScale,
+                worldPosition: finalPos,
+            },
+                {
+                    easing: "cubicOut",
+                    onComplete: () => {
+                        tile.destroy();
+                    },
+                })
+            .start();
+    }
+
+    private _tweenBigTileBounce(tile: Node): Promise<void> {
+        return new Promise(resolve => {
+            tween(tile)
+                .delay(0.2)
+                .by(0.2, { scale: v3(0.15, 0.15, 0.15) },
+                    {
+                        easing: "cubicIn",
+                        onStart: (bigTile: Node) => {
+                            const animation = bigTile.getComponent(Animation);
+                            animation.play('correctBigTile');
+                        },
+                    })
+                .by(0.2, { scale: v3(-0.15, -0.15, -0.15) },
+                    {
+                        easing: "cubicOut",
+                        onComplete: () => resolve(),
+                    })
+                .start();
+        });
+    }
 }
 

@@ -1,4 +1,4 @@
-import {  _decorator, CCInteger, Component, instantiate, UITransform, Vec3, resources, JsonAsset } from 'cc';
+import {  _decorator, CCInteger, Component, resources, JsonAsset, Node, Label } from 'cc';
 import { gameEventTarget } from './GameEventTarget';
 import { GameEvent } from './enums/GameEvent';
 const { ccclass, property } = _decorator;
@@ -7,6 +7,18 @@ const { ccclass, property } = _decorator;
 export class LevelController extends Component {
     @property(CCInteger)
     levelNumber: number = 1;
+
+    @property(Node)
+    levelLabel: Node;
+
+    @property(Node)
+    WordsField: Node;
+
+    @property(Node)
+    WordMini: Node;
+
+    @property(Node)
+    WordCircle: Node;
 
     protected onEnable(): void {
         this._subscribeEvents(true);
@@ -52,6 +64,9 @@ export class LevelController extends Component {
     private async loadLevelResouces(level: number): Promise<void> {
         const lvlData = await this._loadJson(level);
         const words = this._processLvlData(lvlData);
+
+        this.levelLabel.getComponent(Label).string = `Уровень ${level}`;
+        
         
         gameEventTarget.emit(GameEvent.LEVEL_RESOURCES_PREPARED, words);
     }
