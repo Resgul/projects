@@ -25,13 +25,13 @@ export class DrawLinesWithMouse extends Component {
 
     private _subscribeEvents(isOn: boolean) {
         const func = isOn ? 'on' : 'off';
-
+        // в this.onPointerMove, this.onLetterUnderPointer и this.onPointerDown приходит позиция event.getUILocation();
         gameEventTarget[func](GameEvent.LETTER_POINTER_DOWN, this.onPointerDown, this);
         gameEventTarget[func](GameEvent.LETTER_POINTER_UP, this.onPointerUp, this);
-        // благодаря POINTER_MOVE ивенту, можно рисовать вне буквы
+        // благодаря POINTER_MOVE ивенту, можно рисовать вне рамки с буквой
         gameEventTarget[func](GameEvent.LETTER_POINTER_MOVE, this.onPointerMove, this);
         // благодаря UNDER_POINTER ивенту, можно определить, что буква под курсором, 
-        // т.к. MOUSE ивент не работает на телефонах
+        // т.к. MOUSE ивент не работает на телефонах, приходится проверять, находится ли курсор в зоне рамки по позиции
         gameEventTarget[func](GameEvent.LETTER_UNDER_POINTER, this.onLetterUnderPointer, this);
     }
 
@@ -44,7 +44,7 @@ export class DrawLinesWithMouse extends Component {
         this.isDrawing = true;
         this.points = [];
 
-        this.addPoint(position);
+       this.addPoint(position);
     }
 
     onPointerMove(position: Vec2, circle: Node) {
@@ -89,7 +89,7 @@ export class DrawLinesWithMouse extends Component {
     }
 
     private fillPositionsArr(array: Array<Vec2>, mousePos: Vec2): void {
-        // массив наполняется позициями кругов, а затем курсора
+        // массив наполняется позициями мировыми позициями кругов, а затем курсора
         this.connectedCircles.forEach(circle => {
             const { x, y } = circle.worldPosition;
             array.push(v2(x, y));

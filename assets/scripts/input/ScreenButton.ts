@@ -1,4 +1,4 @@
-import { _decorator, Component, Enum, EventTouch, Input, Node, Vec2 } from 'cc';
+import { _decorator, Camera, Component, director, Enum, EventTouch, Input, Node, v2, Vec2, Vec3 } from 'cc';
 import { InteractionType } from './InteractionType';
 import { CommandDict } from './CommandDict';
 import { gameEventTarget } from '../GameEventTarget';
@@ -54,7 +54,24 @@ export class ScreenButton extends Component {
 	statusMap: Map<InteractionType, boolean> = new Map();
 	_customFields;
 
+
+	private _camera: Camera = null;
+
+	// из-за того, что для ресайза используется camera.orthoHeight, 
+	// идея забирать просто из event.getUILocation() не работает
+	private _screenToWorld(position: Vec2): Vec2 {
+    const camera = this._camera;
+    const screenPos = new Vec3(position.x, position.y, 0);
+    const worldPos = new Vec3();
+    
+    camera.screenToWorld(screenPos, worldPos);
+    
+    return v2(worldPos.x, worldPos.y);
+}
+
 	onEnable() {
+		this._camera = director.getScene().getComponentInChildren(Camera);
+
 		this.interCommandPairs.forEach(interCommandPair => {
 			const command = CommandDict[interCommandPair.commandName];
 			this.commandMap.set(interCommandPair.interactionType, command);
@@ -91,8 +108,8 @@ export class ScreenButton extends Component {
 	onTouchStart(event: EventTouch) {
 		this.statusMap.set(InteractionType.Down, true);
 
-		this.touchStartPos = event.getUILocation();
-		this.touchCurrPos = event.getUILocation();
+		this.touchStartPos = this._screenToWorld(event.getLocation());
+		this.touchCurrPos = this._screenToWorld(event.getLocation());
 	}
 
 	onTouchEnd(event: EventTouch) {
@@ -112,7 +129,7 @@ export class ScreenButton extends Component {
 	onTouchMove(event: EventTouch) {
 		this.statusMap.set(InteractionType.Move, true);
 
-		this.touchCurrPos = event.getUILocation();
+		this.touchCurrPos = this._screenToWorld(event.getLocation());
 	}
 }
 
