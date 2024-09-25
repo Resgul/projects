@@ -1,6 +1,4 @@
-import { _decorator, Component, Label, Animation, Node } from 'cc';
-import { gameEventTarget } from '../GameEventTarget';
-import { GameEvent } from '../enums/GameEvent';
+import { _decorator, Component, Label, Animation } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('LetterTileController')
@@ -12,23 +10,6 @@ export class LetterTileController extends Component {
     protected onEnable(): void {
         this.label = this.node.getComponentInChildren(Label);
         this.animation = this.node.getComponent(Animation);
-
-        this._subscribeEvents(true);
-    }
-
-    protected onDisable(): void {
-        this._subscribeEvents(false);
-    }
-
-    private _subscribeEvents(isOn: boolean): void {
-        const func = isOn ? 'on' : 'off';
-
-        // gameEventTarget[func](GameEvent.LETTER_ACTIVATE, this.onTileIsAlreadyActive, this);
-    }
-
-    private onTileIsAlreadyActive(tile: Node): void {
-        if (tile !== this.node) return;
-        this.animation.play('activateTile');
     }
 
     public get letter(): string {

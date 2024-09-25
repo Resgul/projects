@@ -13,6 +13,7 @@ export class WordsFieldGenerator extends Component {
     private _totalWordsHeight: number;
     private _wordsMap: Map<string, Node> = new Map();
     private _wordsGuesed: Set<Node> = new Set();
+    private _wordsWidth: Array<number> = [];
 
     protected async onEnable(): Promise<void> {
         this._subscribeEvents(true);
@@ -36,14 +37,23 @@ export class WordsFieldGenerator extends Component {
     }
 
     private _generateWords(words: Array<string>): void {
-        const fieldHeight = this.node.getComponent(UITransform).height;
         words.forEach((word, i) => this._spawnWordPrefab(word, i, words));
+        
+        this._fieldSizeCalculation();
+        this._totalWordsCount = this._wordsMap.size;
+    }
 
-        const scaleCorrection = fieldHeight / this._totalWordsHeight;
+    private _fieldSizeCalculation(): void {
+        const { width, height } = this.node.getComponent(UITransform);
+        const scaleCorrection = height / this._totalWordsHeight;
+        const maxWordWidth = Math.max(...this._wordsWidth);
         // ресайз слов под границы, чтобы они не заслоняли другие элементы
         this.node.scale.set(scaleCorrection, scaleCorrection);
-        this._totalWordsCount = this._wordsMap.size;
-
+        // ресайз слов под границы, если стало очень широко
+        if (maxWordWidth * scaleCorrection > width) {
+            const scaleCorrection = width / maxWordWidth;
+            this.node.scale.set(scaleCorrection, scaleCorrection);
+        }
     }
 
     private _spawnWordPrefab(word: string, i: number, words: Array<string>): void {
@@ -59,10 +69,10 @@ export class WordsFieldGenerator extends Component {
         const posY = startY - i * (lineHeight + spacing);
 
         wordController.generateWord(word);
-
         instance.setPosition(0, posY);
-        this.node.addChild(instance);
 
+        this.node.addChild(instance);
+        this._wordsWidth.push(wordController.totalWidth);
         this._wordsMap.set(word, instance);
     }
 

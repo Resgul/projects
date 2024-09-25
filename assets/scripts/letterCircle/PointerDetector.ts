@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, UITransform, v2, Vec2 } from 'cc';
+import { _decorator, Component, UITransform, v2, Vec2 } from 'cc';
 import { gameEventTarget } from '../GameEventTarget';
 import { GameEvent } from '../enums/GameEvent';
 const { ccclass, property } = _decorator;
@@ -22,10 +22,10 @@ export class PointerDetector extends Component {
     private _subscribeEvents(isOn: boolean) {
         const func = isOn ? 'on' : 'off';
 
-        gameEventTarget[func](GameEvent.LETTER_POINTER_MOVE, this.onPointerMove, this);
+        gameEventTarget[func](GameEvent.LETTER_POINTER_MOVE, this._onPointerMove, this);
     }
 
-    private onPointerMove(pointerPosition: Vec2) {
+    private _onPointerMove(pointerPosition: Vec2) {
         if (!pointerPosition) return;
         const { x, y } = this.node.worldPosition;
         const pointerDistance = Vec2.distance(pointerPosition, v2(x, y));

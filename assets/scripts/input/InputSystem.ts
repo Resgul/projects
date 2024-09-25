@@ -51,7 +51,6 @@ export class InputSystem extends Component {
 	}
 
 	onRegisterButton(button: ScreenButton) {
-		console.log('on register button');
 		const id = button.buttonName;
 
 		for (const interaction in InteractionType) {
@@ -66,7 +65,6 @@ export class InputSystem extends Component {
 	}
 
 	onUnregisterButton(button: ScreenButton) {
-		console.log('on unregister button');
 		const id = button.buttonName;
 
 		for (const interaction in InteractionType) {

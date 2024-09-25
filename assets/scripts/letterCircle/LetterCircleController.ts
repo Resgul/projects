@@ -5,8 +5,6 @@ const { ccclass, property } = _decorator;
 
 @ccclass('LetterCircleController')
 export class LetterCircleController extends Component {
-    // @property(Prefab)
-    // letterPrefab: Prefab;
     private label: Component;
     private animation: Component;
     public isActive: boolean = false;
@@ -32,20 +30,20 @@ export class LetterCircleController extends Component {
 
     private onLetterActivate(circle: Node): void {
         if (circle !== this.node) return;
-        this.toggleLetter(true);
+        this._toggleLetter(true);
     }
 
     private onLetterDeactivate(circle: Node): void {
         if (circle !== this.node) return;
-        this.toggleLetter(false);
+        this._toggleLetter(false);
     }
 
     private onLetterDeActivateAll(): void {
         if (!this.isActive) return;
-        this.toggleLetter(false);
+        this._toggleLetter(false);
     }
 
-    private toggleLetter(toggle: boolean): void {
+    private _toggleLetter(toggle: boolean): void {
         this.isActive = toggle;
         this.animation.play(toggle ? 'activateLetter' : 'deactivateLetter');
 

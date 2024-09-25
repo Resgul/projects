@@ -25,17 +25,17 @@ export class DrawLinesWithMouse extends Component {
 
     private _subscribeEvents(isOn: boolean) {
         const func = isOn ? 'on' : 'off';
-        // в this.onPointerMove, this.onLetterUnderPointer и this.onPointerDown приходит позиция event.getUILocation();
-        gameEventTarget[func](GameEvent.LETTER_POINTER_DOWN, this.onPointerDown, this);
-        gameEventTarget[func](GameEvent.LETTER_POINTER_UP, this.onPointerUp, this);
+        // в this._onPointerMove, this._onLetterUnderPointer и this._onPointerDown приходит позиция event.getUILocation();
+        gameEventTarget[func](GameEvent.LETTER_POINTER_DOWN, this._onPointerDown, this);
+        gameEventTarget[func](GameEvent.LETTER_POINTER_UP, this._onPointerUp, this);
         // благодаря POINTER_MOVE ивенту, можно рисовать вне рамки с буквой
-        gameEventTarget[func](GameEvent.LETTER_POINTER_MOVE, this.onPointerMove, this);
+        gameEventTarget[func](GameEvent.LETTER_POINTER_MOVE, this._onPointerMove, this);
         // благодаря UNDER_POINTER ивенту, можно определить, что буква под курсором, 
         // т.к. MOUSE ивент не работает на телефонах, приходится проверять, находится ли курсор в зоне рамки по позиции
-        gameEventTarget[func](GameEvent.LETTER_UNDER_POINTER, this.onLetterUnderPointer, this);
+        gameEventTarget[func](GameEvent.LETTER_UNDER_POINTER, this._onLetterUnderPointer, this);
     }
 
-    onPointerDown(position: Vec2, circle: Node) {
+    private _onPointerDown(position: Vec2, circle: Node) {
         if (circle) {
             this.connectedCircles.add(circle);
             gameEventTarget.emit(GameEvent.LETTER_ACTIVATE, circle);
@@ -44,16 +44,16 @@ export class DrawLinesWithMouse extends Component {
         this.isDrawing = true;
         this.points = [];
 
-       this.addPoint(position);
+        this._addPoint(position);
     }
 
-    onPointerMove(position: Vec2, circle: Node) {
+    private _onPointerMove(position: Vec2, circle: Node): void {
         if (this.isDrawing) {
-            this.addPoint(position);
+            this._addPoint(position);
         }
     }
 
-    onLetterUnderPointer(position: Vec2, circle: Node) {
+    private _onLetterUnderPointer(position: Vec2, circle: Node): void {
         if (this.isDrawing) {
             // дабавить круг в сет для отрисовки и запустить ивенты
             if (circle && !this.connectedCircles.has(circle)) {
@@ -61,12 +61,12 @@ export class DrawLinesWithMouse extends Component {
                 gameEventTarget.emit(GameEvent.LETTER_ACTIVATE, circle);
             };
 
-            this.deleteLastIfTouchPrev(circle);
-            this.addPoint(position);
+            this._deleteLastIfTouchPrev(circle);
+            this._addPoint(position);
         }
     }
 
-    private deleteLastIfTouchPrev(circle: Node): void {
+    private _deleteLastIfTouchPrev(circle: Node): void {
         if (this.connectedCirclesArray.length > 1) {
             const lastCircle = this.connectedCirclesArray[this.connectedCirclesArray.length - 1];
             const preLastCircle = this.connectedCirclesArray[this.connectedCirclesArray.length - 2];
@@ -79,16 +79,16 @@ export class DrawLinesWithMouse extends Component {
         }
     }
 
-    private onPointerUp(position: Vec2): void {
+    private _onPointerUp(): void {
         this.isDrawing = false;
-        this.updateGraphics();
+        this._updateGraphics();
         this.connectedCircles.clear();
         this.connectedCirclesArray = [];
 
         gameEventTarget.emit(GameEvent.LETTER_DEACTIVATE_ALL);
     }
 
-    private fillPositionsArr(array: Array<Vec2>, mousePos: Vec2): void {
+    private _fillPositionsArr(array: Array<Vec2>, mousePos: Vec2): void {
         // массив наполняется позициями мировыми позициями кругов, а затем курсора
         this.connectedCircles.forEach(circle => {
             const { x, y } = circle.worldPosition;
@@ -98,26 +98,26 @@ export class DrawLinesWithMouse extends Component {
         array.push(mousePos);
     }
 
-    private addPoint(position: Vec2) {
+    private _addPoint(position: Vec2): void {
         if (!position) return;
         const pointsPositions = [];
         this.connectedCirclesArray = [];
 
         if (this.connectedCircles.size < 2) {
-            this.fillPositionsArr(this.points, position);
+            this._fillPositionsArr(this.points, position);
         } else {
             this.connectedCirclesArray = [...this.connectedCircles];
-            this.fillPositionsArr(pointsPositions, position);
+            this._fillPositionsArr(pointsPositions, position);
 
             const splinePoints = catmullRomSpline(pointsPositions, 10);
             this.points = splinePoints;
         }
 
 
-        this.updateGraphics();
+        this._updateGraphics();
     }
 
-    private updateGraphics(): void {
+    private _updateGraphics(): void {
         const { graphics } = this;
         graphics.clear();
 

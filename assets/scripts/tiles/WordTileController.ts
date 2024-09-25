@@ -1,6 +1,4 @@
 import { _decorator, Component, instantiate, Prefab, UITransform, Node } from 'cc';
-import { gameEventTarget } from '../GameEventTarget';
-import { GameEvent } from '../enums/GameEvent';
 import { LetterTileController } from './LetterTileController';
 const { ccclass, property } = _decorator;
 
@@ -10,20 +8,7 @@ export class WordTileController extends Component {
     tilePrefab: Prefab;
 
     public wordSet: Set<Node> = new Set();
-
-    protected async onEnable(): Promise<void> {
-        this._subscribeEvents(true);
-    }
-
-    protected onDisable(): void {
-        this._subscribeEvents(false);
-    }
-
-    private _subscribeEvents(isOn: boolean): void {
-        const func = isOn ? 'on' : 'off';
-
-        // gameEventTarget[func](GameEvent.LEVEL_RESOURCES_PREPARED, this._onLevelResourcesPrepared, this);
-    }
+    public totalWidth: number = 0;
 
     public generateWord(word: string): void {
         this.node.name = word;
@@ -40,8 +25,8 @@ export class WordTileController extends Component {
 
         const letterSize = uiTransform.width;
         const spacing = letterSize * 0.1;
-        const totalWidth = word.length * letterSize + (word.length - 1) * spacing;
-        const startX = -totalWidth * 0.5 + letterSize * 0.5;
+        this.totalWidth = word.length * letterSize + (word.length - 1) * spacing;
+        const startX = -this.totalWidth * 0.5 + letterSize * 0.5;
         const posX = startX + i * (letterSize + spacing);
 
         instance.setPosition(posX, 0);
