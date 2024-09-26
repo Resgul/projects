@@ -1,9 +1,9 @@
 import { _decorator, Component, instantiate, Prefab, UITransform, Node } from 'cc';
-import { LetterTileController } from './LetterTileController';
+import { TileController } from './TileController';
 const { ccclass, property } = _decorator;
 
-@ccclass('WordTileController')
-export class WordTileController extends Component {
+@ccclass('BigWordGenerator')
+export class BigWordGenerator extends Component {
     @property(Prefab)
     tilePrefab: Prefab;
 
@@ -21,7 +21,7 @@ export class WordTileController extends Component {
     private _spawnTilePrefab(letter: string, i: number, word: string): void {
         const instance = instantiate(this.tilePrefab);
         const uiTransform = instance.getComponent(UITransform);
-        const letterController = instance.getComponent(LetterTileController);
+        const letterController = instance.getComponent(TileController);
 
         const letterSize = uiTransform.width;
         const spacing = letterSize * 0.1;

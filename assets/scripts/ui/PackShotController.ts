@@ -1,4 +1,4 @@
-import { _decorator, Component, Label, Node, ParticleSystem2D } from 'cc';
+import { _decorator, Component, Label, Node, ParticleSystem2D, Animation } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('PackShotController')
@@ -13,6 +13,7 @@ export class PackShotController extends Component {
     particles: Node;
 
     protected onEnable(): void {
+        this._playAnimation();
         this._playParticle();
     }
 
@@ -21,6 +22,11 @@ export class PackShotController extends Component {
             const particle = node.getComponent(ParticleSystem2D);
             particle.resetSystem();
         })
+    }
+
+    private _playAnimation(): void {
+        const animation = this.node.getComponent(Animation);
+        animation.play('showPackShot');
     }
 
     public setText(lvlNumber: number): void {

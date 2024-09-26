@@ -1,0 +1,28 @@
+{
+  "buildPlatform": "web-mobile",
+    "isZip": true,
+      "orientation": "auto",
+        "exportChannels": [
+          "Unity"
+        ],
+          "projectName": "[1]CC_Words_game",
+            "injectOptions": {
+    "AppLovin": {
+      "head": "<script>if(mraid.getState()==='loading'){mraid.addEventListener('ready',onSdkReady)}else{onSdkReady()}function viewableChangeHandler(viewable){if(viewable){cc.game.run()}else{cc.game.pause()}}function onSdkReady(){mraid.addEventListener('viewableChange',viewableChangeHandler);if(mraid.isViewable()){showMyAd()}}var url='https://yandex.ru/games/app/98073#info';var android='https://yandex.ru/games/app/98073#info';if(/android/i.test(navigator.userAgent)){url=android}function showMyAd(){cc.game.run()}function AdRedirectProcessing(){mraid.open(url)}</script>",
+        "sdkScript": "<script src=\"./mraid.js\"></script>"
+    },
+    "IronSource": {
+      "head": "<script type='text/javascript' charset='utf-8'>function onReadyCallback(){dapi.removeEventListener('ready',onReadyCallback);dapi.getAudioVolume();dapi.isViewable()&&adVisibleCallback({isViewable:!0}),dapi.addEventListener('viewableChange',adVisibleCallback),dapi.addEventListener('adResized',adResizeCallback),dapi.addEventListener('audioVolumeChange',audioVolumeChangeCallback)}function startGame(){dapi.getScreenSize();cc.game.run()}function pauseGame(){cc.game.pause()}function adVisibleCallback(e){console.log('isViewable '+e.isViewable),e.isViewable?(screenSize=dapi.getScreenSize(),cc.game.run()):cc.game.pause()}function adResizeCallback(e){screenSize=e,console.log('ad was resized width '+e.width+' height '+e.height)}function userClickedDownloadButton(e){dapi.openStoreUrl()}function audioVolumeChangeCallback(e){!!e?cc.game.emit('audio-turn-on'):cc.game.emit('audio-turn-off')}function AdRedirectProcessing(){dapi.openStoreUrl()}window.addEventListener('load',function(){dapi.isReady()?onReadyCallback():dapi.addEventListener('ready',onReadyCallback)});</script>"
+    },
+    "Mintegral": {
+      "body": "<script type='text/javascript' charset='utf-8'>function gameClose(){cc.game.end()}function gameStart(){cc.game.run()}function AdRedirectProcessing(){window.install && window.install()}</script>"
+    },
+    "Google": {
+      "body": "<script type='text/javascript' charset='utf-8'>var canvas = document.body.querySelector('canvas');function f(e){e.preventDefault();e.stopPropagation();};window.canvasFn = f;canvas.addEventListener('click', window.canvasFn);function addGoogleScript(fn){var headNode = document.getElementsByTagName('head')[0];var script = document.createElement('script');script.onload = function () {try {ExitApi.delayCloseButton(0);fn&&fn()} catch(e) {}};script.setAttribute('type', 'text/javascript');script.setAttribute('charset', 'utf-8');script.setAttribute('src', 'https://tpc.googlesyndication.com/pagead/gadgets/html5/api/exitapi.js');headNode.appendChild(script);}function AdRedirectProcessing(){addGoogleScript(function fn(){ExitApi&&ExitApi.exit()});canvas.removeEventListener('click', window.canvasFn);}</script>"
+    },
+    "Unity": {
+      "body": "<script>if(mraid.getState()==='loading'){mraid.addEventListener('ready',onSdkReady)}else{onSdkReady()}function viewableChangeHandler(viewable){if(viewable){cc.game.run()}else{cc.game.pause()}}function onSdkReady(){mraid.addEventListener('viewableChange',viewableChangeHandler);if(mraid.isViewable()){showMyAd()}}var url='https://yandex.ru/games/app/98073#info';var android='https://yandex.ru/games/app/98073#info';if(/android/i.test(navigator.userAgent)){url=android}function showMyAd(){cc.game.run()}function AdRedirectProcessing(){mraid.open(url)}</script>",
+        "sdkScript": "<script src=\"./mraid.js\"></script>"
+    }
+  }
+}

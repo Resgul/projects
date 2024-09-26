@@ -2,12 +2,12 @@ import { _decorator, Component, instantiate, Prefab, UITransform, Node, Animatio
 import { gameEventTarget } from '../GameEventTarget';
 import { GameEvent } from '../enums/GameEvent';
 import { LetterCircleController } from '../letterCircle/LetterCircleController';
-import { MiniTileController } from './MiniTileController';
-import { WordTileController } from './WordTileController';
+import { TileController } from './TileController';
+import { BigWordGenerator } from './BigWordGenerator';
 const { ccclass, property } = _decorator;
 
-@ccclass('WordMiniGenerator')
-export class WordMiniGenerator extends Component {
+@ccclass('MiniWordGenerator')
+export class MiniWordGenerator extends Component {
     @property(Prefab)
     tilePrefab: Prefab;
 
@@ -54,22 +54,22 @@ export class WordMiniGenerator extends Component {
     }
 
     private _onWordCorrect(word: Node): void {
-        const wordController = word.getComponent(WordTileController);
+        const wordController = word.getComponent(BigWordGenerator);
         const { wordSet } = wordController;
         const promises = [];
 
-        [...this._tilesSet].forEach((tile, i) => {
-            const animation = tile.getComponent(Animation);
-            animation.play('correctLetter');
+        Array.from(this._tilesSet).forEach((tile, i) => {
+            const tileController = tile.getComponent(TileController);
+            tileController.animate('correctLetter');
 
-            const wordUITransform = [...wordSet][i].getComponent(UITransform);
+            const wordUITransform = Array.from(wordSet)[i].getComponent(UITransform);
             const tileUITransform = tile.getComponent(UITransform);
-            const scaleCorrection = (wordUITransform.width * [...wordSet][i].worldScale.x) / tileUITransform.width;
-            const finalPos = [...wordSet][i].worldPosition;
+            const scaleCorrection = (wordUITransform.width * Array.from(wordSet)[i].worldScale.x) / tileUITransform.width;
+            const finalPos = Array.from(wordSet)[i].worldPosition;
             const finalScale = v3(scaleCorrection, scaleCorrection, 1);
 
             this._tweenMiniTileGetPosition(tile, finalScale, finalPos);
-            promises.push(this._tweenBigTileBounce([...wordSet][i]));
+            promises.push(this._tweenBigTileBounce(Array.from(wordSet)[i]));
         });
 
         this._tilesSet.clear();
@@ -79,10 +79,10 @@ export class WordMiniGenerator extends Component {
     }
 
     private _onWordWrong(): void {
-        [...this._tilesSet].forEach(tile => {
-            const animation = tile.getComponent(Animation);
-            animation.play('wrongLetter');
-            animation.on(Animation.EventType.FINISHED, () => tile.destroy(), this);
+        Array.from(this._tilesSet).forEach(miniTile => {
+            const tileController = miniTile.getComponent(TileController);
+            tileController.animate('wrongLetter')
+                .then(() => miniTile.destroy());
         })
 
         this._tilesSet.clear();
@@ -90,20 +90,18 @@ export class WordMiniGenerator extends Component {
     }
 
     private _onWordDublicate(greenTilesOnField: Node): void {
-        const wordController = greenTilesOnField.getComponent(WordTileController);
+        const wordController = greenTilesOnField.getComponent(BigWordGenerator);
         const { wordSet } = wordController;
 
-
-        wordSet.forEach(tile => {
-            const animation = tile.getComponent(Animation);
-            animation.play('dublicateBigTile');
-
+        wordSet.forEach(bigTile => {
+            const tileController = bigTile.getComponent(TileController);
+            tileController.animate('dublicateBigTile');
         });
 
-        [...this._tilesSet].forEach(tile => {
-            const animation = tile.getComponent(Animation);
-            animation.play('dublicateLetterMini');
-            animation.on(Animation.EventType.FINISHED, () => tile.destroy(), this);
+        Array.from(this._tilesSet).forEach(miniTile => {
+            const tileController = miniTile.getComponent(TileController);
+            tileController.animate('dublicateLetterMini')
+                .then(() => miniTile.destroy());
         })
 
         this._tilesSet.clear();
@@ -113,8 +111,8 @@ export class WordMiniGenerator extends Component {
     private _collectWord(): string {
         let word = '';
 
-        [...this._tilesSet].forEach(tile => {
-            const letterController = tile.getComponent(MiniTileController);
+        Array.from(this._tilesSet).forEach(tile => {
+            const letterController = tile.getComponent(TileController);
             word += letterController.letter;
         });
 
@@ -126,7 +124,7 @@ export class WordMiniGenerator extends Component {
         const { letter } = circleController;
         const instance = instantiate(this.tilePrefab);
         const uiTransform = instance.getComponent(UITransform);
-        const letterController = instance.getComponent(MiniTileController);
+        const letterController = instance.getComponent(TileController);
 
         letterController.letter = letter;
         this._tileSize = uiTransform.width;
@@ -137,7 +135,8 @@ export class WordMiniGenerator extends Component {
     }
 
     private _updateTilePositon(): void {
-        [...this._tilesSet].forEach((tile, i) => {
+        Array.from(this._tilesSet).forEach((tile, i) => {
+            
             const spacing = this._tileSize * 0.1;
             const totalWidth = this._tilesSet.size * this._tileSize + (this._tilesSet.size - 1) * spacing;
             const startX = -totalWidth * 0.5 + this._tileSize * 0.5;
@@ -170,8 +169,8 @@ export class WordMiniGenerator extends Component {
                     {
                         easing: "cubicIn",
                         onStart: (bigTile: Node) => {
-                            const animation = bigTile.getComponent(Animation);
-                            animation.play('correctBigTile');
+                            const tileController = bigTile.getComponent(TileController);
+                            tileController.animate('correctBigTile')
                         },
                     })
                 .by(0.2, { scale: v3(-0.15, -0.15, -0.15) },

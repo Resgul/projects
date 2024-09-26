@@ -106,10 +106,10 @@ export class DrawLinesWithMouse extends Component {
         if (this.connectedCircles.size < 2) {
             this._fillPositionsArr(this.points, position);
         } else {
-            this.connectedCirclesArray = [...this.connectedCircles];
+            this.connectedCirclesArray = Array.from(this.connectedCircles);
             this._fillPositionsArr(pointsPositions, position);
 
-            const splinePoints = catmullRomSpline(pointsPositions, 10);
+            const splinePoints = catmullRomSpline(pointsPositions, 15);
             this.points = splinePoints;
         }
 

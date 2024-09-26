@@ -1,7 +1,7 @@
 import { _decorator, Component, instantiate, Prefab, UITransform, Node } from 'cc';
 import { gameEventTarget } from '../GameEventTarget';
 import { GameEvent } from '../enums/GameEvent';
-import { WordTileController } from '../tiles/WordTileController';
+import { BigWordGenerator } from '../tiles/BigWordGenerator';
 const { ccclass, property } = _decorator;
 
 @ccclass('WordsFieldGenerator')
@@ -59,7 +59,7 @@ export class WordsFieldGenerator extends Component {
     private _spawnWordPrefab(word: string, i: number, words: Array<string>): void {
         const instance = instantiate(this.wordPrefab);
         const uiTransform = instance.getComponent(UITransform);
-        const wordController = instance.getComponent(WordTileController);
+        const wordController = instance.getComponent(BigWordGenerator);
 
         const lineHeight = uiTransform.height;
         const spacing = lineHeight * 0.1;

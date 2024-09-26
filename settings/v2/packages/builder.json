@@ -1,0 +1,13 @@
+{
+  "splash-setting": {
+    "url": "D:\\Resgul-prog\\cocos_creator\\Projects\\WordsGame\\assets\\images\\logo.png",
+    "displayWatermark": false,
+    "clearColor": {
+      "x": 0.27450980392156865,
+      "y": 0.27058823529411763,
+      "z": 0.26666666666666666,
+      "w": 1
+    },
+    "totalTime": 1500
+  }
+}

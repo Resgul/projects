@@ -1,7 +1,7 @@
 import { _decorator, CCInteger, Component, resources, Node, Label, math, Prefab, instantiate } from 'cc';
 import { gameEventTarget } from './GameEventTarget';
 import { GameEvent } from './enums/GameEvent';
-import { PackShotController } from './PackShotController';
+import { PackShotController } from './ui/PackShotController';
 const { ccclass, property } = _decorator;
 
 @ccclass('LevelController')
